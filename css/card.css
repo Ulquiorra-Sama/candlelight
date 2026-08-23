@@ -307,7 +307,17 @@
   margin-bottom: -2px;
   position: relative;
   z-index: 2;
+  /* --candle-scale is a last-resort shrink written by main.js; normally 1. */
+  transform: scale(var(--candle-scale, 1));
+  transform-origin: 50% 100%;
 }
+
+/* Seven or more: slimmer candles, tighter gaps, so the row stays roughly the
+   width of the cake it is standing on. */
+.candles--dense { gap: 2px; }
+.candles--dense .candle { width: 9px; padding: 6px 5px 0; }
+.candles--dense .stick  { width: 9px; margin-left: -4.5px; }
+.candles--dense .flame  { width: 13px; margin-left: -6.5px; }
 
 .candle {
   position: relative;
@@ -321,6 +331,17 @@
   padding: 6px 8px 0;
 }
 .candle:disabled { cursor: default; }
+
+/* A candle is a thin sliver of pixels. This extends the clickable area well
+   below it, over the cake, without changing the layout — so it can actually be
+   hit with a fingertip. Neighbours overlap by a couple of pixels, which is
+   harmless: the nearest candle still wins the tap. */
+.candle::after {
+  content: "";
+  position: absolute;
+  inset: -4px -2px -30px -2px;
+}
+.candle.out::after { display: none; }
 
 .stick {
   position: absolute;

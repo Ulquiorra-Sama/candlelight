@@ -55,8 +55,10 @@ function resolveCandleCount(cfg) {
     return Math.min(24, Math.round(cfg.candleCount));
   }
   if (Number.isFinite(cfg.age) && cfg.age > 0) {
-    /* Capped at 12 so a milestone birthday doesn't become a bonfire. */
-    return Math.min(12, Math.max(3, Math.round(cfg.age)));
+    /* Capped at 8. The number on a cake is symbolic once you're past a
+       certain age, and more than eight either overflows the card or shrinks
+       the candles below a tappable size. */
+    return Math.min(8, Math.max(3, Math.round(cfg.age)));
   }
   return 6;
 }
@@ -91,6 +93,9 @@ const WAX = [
 
 function buildCandles() {
   candlesEl.innerHTML = '';
+  /* Past six, tighten the spacing so the row stays about as wide as the cake
+     instead of hanging off both sides of it. */
+  candlesEl.classList.toggle('candles--dense', CANDLE_COUNT > 6);
   for (let i = 0; i < CANDLE_COUNT; i++) {
     const b = document.createElement('button');
     b.className = 'candle';
@@ -215,6 +220,21 @@ function fitCard() {
   const available = window.innerHeight - 24;
   const s = Math.min(1, available / natural);
   stage.style.setProperty('--fit', s.toFixed(4));
+  fitCandles();
+}
+
+/* Safety net for a hand-set `candleCount` far above the default cap: if the row
+   is still wider than the card, shrink it to fit rather than letting candles
+   hang off the edges. Never scales up, so the normal case is untouched. */
+function fitCandles() {
+  const cs = getComputedStyle(card);
+  const inner = card.clientWidth
+    - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  candlesEl.style.removeProperty('--candle-scale');
+  const natural = candlesEl.scrollWidth;
+  if (!natural || !inner) return;
+  const s = Math.min(1, (inner - 8) / natural);
+  if (s < 1) candlesEl.style.setProperty('--candle-scale', s.toFixed(4));
 }
 
 function setScene(next) {

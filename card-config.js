@@ -17,7 +17,7 @@ export const CARD = {
 
   /* Which birthday. Set a number like 60 to print it, or leave null to
      show no number at all. This also decides how many candles appear. */
-  age: null,
+  age: 52,
 
   /* The big line on the front of the card. */
   greeting: "Happy Birthday",
@@ -47,8 +47,9 @@ export const CARD = {
      Optional settings — the defaults are good. Change them only if you want to.
      ======================================================================== */
 
-  /* How many candles. null = work it out from `age` (capped at 12 so the cake
-     doesn't turn into a bonfire). Or just set a number you like. */
+  /* How many candles. null = work it out from `age`, capped at 8 — the number
+     on a cake is symbolic once you're past a certain age. Or set your own; go
+     much above 10 and they get thin and fiddly to tap. */
   candleCount: null,
 
   /* true  = offer the microphone, so she can really blow the candles out.
