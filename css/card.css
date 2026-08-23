@@ -1,0 +1,547 @@
+/* ============================================================================
+   card.css — the scenes: envelope, card, cake, candles, message.
+   Scene state is driven entirely by [data-scene] on .stage.
+   ========================================================================== */
+
+.stage {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  /* The card is authored at full size and scaled DOWN to sit in the envelope,
+     so nothing ever reflows — every transition is transform + opacity. */
+  --card-w: min(86vw, 400px);
+  --env-w: calc(var(--card-w) * 1.04);
+  --env-h: calc(var(--card-w) * 0.68);
+}
+
+/* Warm light spilling from the candles onto the desk. JS drives --lit. */
+.stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(52% 40% at 50% 46%,
+    rgba(232, 163, 61, .20) 0%, rgba(232, 163, 61, .07) 42%, transparent 72%);
+  opacity: var(--lit, 0);
+  transition: opacity .9s var(--ease-soft);
+  pointer-events: none;
+}
+
+.confetti-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 40;
+}
+
+/* The half-second hush after the last candle goes out. */
+.dim {
+  position: fixed;
+  inset: 0;
+  background: #14110D;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 30;
+  transition: opacity .45s var(--ease-soft);
+}
+.stage[data-scene="wish"] .dim { opacity: .42; }
+
+/* ============================================================================
+   Envelope
+   ========================================================================== */
+
+/* The envelope and the card slot share one grid cell, so both are centred by
+   .stage's place-items and their transforms stay free for animation. */
+.envelope {
+  grid-area: 1 / 1;
+  position: relative;
+  width: var(--env-w);
+  height: var(--env-h);
+  transform-style: preserve-3d;
+  transition: transform .7s var(--ease-paper) .1s,
+              opacity .5s var(--ease-soft) .15s;
+  z-index: 3;
+}
+
+/* Once the card is out, the envelope drops away. */
+.stage[data-scene="cake"]    .envelope,
+.stage[data-scene="blowing"] .envelope,
+.stage[data-scene="wish"]    .envelope,
+.stage[data-scene="message"] .envelope {
+  transform: translateY(150%) rotate(-6deg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.env-back,
+.env-front {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+}
+
+.env-back {
+  background: var(--cream-deep);
+  box-shadow: 0 18px 40px -12px rgba(0, 0, 0, .55),
+              0 2px 6px rgba(0, 0, 0, .3);
+  z-index: 1;
+}
+
+/* The pocket: a rectangle with a V cut out of the top edge. */
+.env-front {
+  background: var(--cream);
+  background-image: linear-gradient(170deg,
+    rgba(255, 255, 255, .5) 0%, transparent 38%);
+  clip-path: polygon(0 0, 50% 42%, 100% 0, 100% 100%, 0 100%);
+  z-index: 3;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6);
+}
+
+/* The flap: a downward triangle hinged along its top edge. */
+.env-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 46%;
+  background: var(--cream);
+  background-image: linear-gradient(190deg,
+    rgba(255, 255, 255, .45) 0%, rgba(58, 52, 44, .06) 100%);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform-origin: 50% 0;
+  transform: rotateX(0deg);
+  transition: transform .85s var(--ease-paper) .3s;
+  z-index: 4;
+  backface-visibility: hidden;
+}
+
+/* Opening: the flap flips up and over, and drops behind the envelope at the
+   halfway point. z-index cannot be animated, so it is switched on a delay. */
+.stage:not([data-scene="sealed"]) .env-flap {
+  transform: rotateX(-172deg);
+  z-index: 0;
+  transition: transform .85s var(--ease-paper) .3s, z-index 0s .72s;
+}
+
+/* Wax seal — a sibling of the flap so it can break before the flap moves. */
+.seal {
+  position: absolute;
+  top: calc(46% - 17px);
+  left: 50%;
+  width: 34px;
+  height: 34px;
+  margin-left: -17px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 32%,
+    #D87A5C 0%, var(--terracotta) 46%, #93452F 100%);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, .38),
+              inset 0 -2px 3px rgba(0, 0, 0, .25);
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  transform-origin: 50% 50%;
+  transition: transform .35s var(--ease-paper), opacity .35s var(--ease-soft);
+}
+.seal svg { width: 18px; height: 18px; opacity: .55; }
+
+.stage:not([data-scene="sealed"]) .seal {
+  transform: scale(.4) rotate(-25deg);
+  opacity: 0;
+}
+
+/* The whole sealed envelope is one big button. */
+.env-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  color: transparent;
+  border-radius: 4px;
+}
+.stage:not([data-scene="sealed"]) .env-hit { display: none; }
+
+/* A slow breath, so the sealed envelope reads as "touch me". */
+.stage[data-scene="sealed"] .envelope {
+  animation: breathe 4.2s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1)     translateY(0); }
+  50%      { transform: scale(1.018) translateY(-4px); }
+}
+
+.open-hint {
+  position: absolute;
+  top: calc(50% + var(--env-h) / 2 + 26px);
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(251, 246, 236, .62);
+  font-style: italic;
+  font-size: .95rem;
+  white-space: nowrap;
+  z-index: 6;
+  transition: opacity .4s var(--ease-soft);
+}
+.stage:not([data-scene="sealed"]) .open-hint { opacity: 0; pointer-events: none; }
+
+/* ============================================================================
+   The card itself
+   ========================================================================== */
+
+/* The slot is exactly the envelope's size and clips whatever is inside it, so
+   the card cannot poke out past the envelope however long its text gets.
+   main.js removes the clip (.free) at the moment the card starts to slide. */
+.card-slot {
+  grid-area: 1 / 1;
+  position: relative;
+  width: var(--env-w);
+  height: var(--env-h);
+  overflow: hidden;
+  /* Below the envelope (z-index 3), so the sealed card is hidden by the
+     envelope's opaque back and then appears to rise out of the top. */
+  z-index: 1;
+}
+.card-slot.free { overflow: visible; }
+
+.stage[data-scene="cake"]    .card-slot,
+.stage[data-scene="blowing"] .card-slot,
+.stage[data-scene="wish"]    .card-slot,
+.stage[data-scene="message"] .card-slot { z-index: 5; }
+
+/* Centred with top/left + translate rather than by the slot's alignment.
+   overflow:hidden makes the slot a scroll container, and a scroll container
+   clamps centred overflow to its start edge instead of centring it — which
+   dropped the card ~100px low and pushed it out of the envelope. */
+.card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--card-w);
+  padding: clamp(1.4rem, 5vw, 2rem) clamp(1.2rem, 5vw, 1.9rem)
+           clamp(1.2rem, 4vw, 1.6rem);
+  border-radius: 3px;
+  text-align: center;
+  box-shadow: 0 24px 60px -18px rgba(0, 0, 0, .6),
+              0 3px 10px rgba(0, 0, 0, .28);
+  /* Tucked inside the envelope, scaled about its own centre.
+     --fit is written by main.js: 1 normally, less than 1 when the viewport is
+     too short for the card at full size (a phone held in landscape). It only
+     ever shrinks, so the design stays proportional instead of being clipped. */
+  transform: translate(-50%, -50%) scale(calc(.5 * var(--fit, 1)));
+  transition: transform .95s var(--ease-paper);
+}
+
+/* Slides up out of the pocket... */
+.stage[data-scene="opening"] .card {
+  transform: translate(-50%, -50%) scale(calc(.5 * var(--fit, 1))) translateY(-92%);
+  transition: transform .9s var(--ease-paper) .95s;
+}
+
+/* ...then comes forward to full size. */
+.stage[data-scene="cake"]    .card,
+.stage[data-scene="blowing"] .card,
+.stage[data-scene="wish"]    .card,
+.stage[data-scene="message"] .card {
+  transform: translate(-50%, -50%) scale(var(--fit, 1));
+}
+
+.card-head { margin-bottom: clamp(.9rem, 4vw, 1.4rem); }
+
+/* Botanical line art, drawn on as the card opens. */
+.sprig {
+  display: block;
+  width: clamp(90px, 34%, 130px);
+  margin: 0 auto clamp(.5rem, 2vw, .9rem);
+  color: var(--sage);
+}
+.sprig path, .sprig ellipse, .sprig circle {
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  fill: none;
+  /* --len is written per shape by main.js from getTotalLength(). */
+  stroke-dasharray: var(--len, 200);
+  stroke-dashoffset: var(--len, 200);
+}
+.stage:not([data-scene="sealed"]):not([data-scene="opening"]) .sprig path,
+.stage:not([data-scene="sealed"]):not([data-scene="opening"]) .sprig ellipse,
+.stage:not([data-scene="sealed"]):not([data-scene="opening"]) .sprig circle {
+  animation: draw 1.3s var(--ease-soft) forwards;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+.sprig--foot {
+  transform: rotate(180deg);
+  margin: clamp(.6rem, 2vw, 1rem) auto 0;
+}
+/* The foot sprig lives inside .message, which is display:none until the last
+   scene — a draw-on animation there would already have elapsed by the time it
+   became visible, so it is simply shown fully drawn. */
+.sprig--foot path, .sprig--foot ellipse, .sprig--foot circle {
+  stroke-dashoffset: 0;
+  animation: none !important;
+}
+
+/* ============================================================================
+   Cake
+   ========================================================================== */
+
+.cake-area {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  margin: clamp(.4rem, 2vw, .9rem) 0 clamp(.8rem, 3vw, 1.2rem);
+}
+.stage[data-scene="message"] .cake-area { display: none; }
+
+.candles {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(2px, 1vw, 6px);
+  margin-bottom: -2px;
+  position: relative;
+  z-index: 2;
+}
+
+.candle {
+  position: relative;
+  width: 11px;
+  height: 62px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  /* content-box padding makes the tap target far bigger than the candle looks */
+  box-sizing: content-box;
+  padding: 6px 8px 0;
+}
+.candle:disabled { cursor: default; }
+
+.stick {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  margin-left: -5.5px;
+  width: 11px;
+  height: 42px;
+  border-radius: 2px 2px 0 0;
+  background-image: repeating-linear-gradient(140deg,
+    var(--c1, #E8DCC6) 0 5px, var(--c2, #C0674B) 5px 10px);
+  box-shadow: inset -2px 0 0 rgba(58, 52, 44, .14),
+              inset 2px 0 0 rgba(255, 255, 255, .3);
+}
+
+.wick {
+  position: absolute;
+  bottom: 42px;
+  left: 50%;
+  margin-left: -1px;
+  width: 2px;
+  height: 6px;
+  border-radius: 1px;
+  background: #4A4038;
+}
+
+.flame {
+  position: absolute;
+  bottom: 47px;
+  left: 50%;
+  width: 15px;
+  height: 23px;
+  margin-left: -7.5px;
+  transform-origin: 50% 100%;
+  /* --lean, --squash and --scale are written every frame by flame.js.
+     --squash is supplied pre-computed rather than derived with abs(), which
+     is too new to rely on for an older iPhone. */
+  transform: rotate(calc(var(--lean, 0) * 34deg))
+             scale(var(--scale, 1))
+             scaleY(var(--squash, 1));
+  transition: opacity .22s var(--ease-soft);
+  will-change: transform;
+}
+
+.flame-core {
+  position: absolute;
+  inset: 0;
+  border-radius: 50% 50% 45% 45% / 62% 62% 38% 38%;
+  background: radial-gradient(ellipse at 50% 74%,
+    #FFFCF2 0%, var(--gold-hot) 24%, var(--gold) 56%, #DD6E24 100%);
+  box-shadow:
+    0 0 10px 2px rgba(232, 163, 61, .5),
+    0 0 26px 8px rgba(232, 163, 61, .2);
+  opacity: var(--flicker, 1);
+}
+
+.candle.out .flame { opacity: 0; }
+
+.smoke {
+  position: absolute;
+  bottom: 48px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: rgba(120, 112, 100, .5);
+  filter: blur(3px);
+  opacity: 0;
+  pointer-events: none;
+}
+.candle.out .smoke { animation: smoke 1.9s ease-out forwards; }
+@keyframes smoke {
+  0%   { opacity: 0;   transform: translate(0, 0)        scale(.5); }
+  18%  { opacity: .6;  transform: translate(1px, -8px)   scale(1); }
+  55%  { opacity: .35; transform: translate(-4px, -26px) scale(1.9); }
+  100% { opacity: 0;   transform: translate(3px, -48px)  scale(3.2); }
+}
+
+.cake {
+  position: relative;
+  width: clamp(112px, 42vw, 150px);
+  z-index: 1;
+}
+
+.frosting {
+  position: relative;
+  height: 26px;
+  border-radius: 9px 9px 3px 3px;
+  background: linear-gradient(175deg, #FFF7EC 0%, var(--frost) 60%, #E2D2BC 100%);
+}
+/* scalloped drips down the side of the cake */
+.frosting::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 15px;
+  background: var(--frost);
+  -webkit-mask-image: radial-gradient(circle at 11px 0, #000 9.5px, transparent 10px);
+          mask-image: radial-gradient(circle at 11px 0, #000 9.5px, transparent 10px);
+  -webkit-mask-size: 22px 15px;
+          mask-size: 22px 15px;
+  -webkit-mask-repeat: repeat-x;
+          mask-repeat: repeat-x;
+}
+
+.cake-body {
+  height: 46px;
+  margin-top: -1px;
+  border-radius: 0 0 7px 7px;
+  background:
+    linear-gradient(90deg, rgba(58, 52, 44, .10) 0%, transparent 16%,
+                           transparent 84%, rgba(58, 52, 44, .13) 100%),
+    linear-gradient(180deg, var(--cake) 0%, #C9A177 100%);
+}
+
+.plate {
+  width: clamp(140px, 52vw, 186px);
+  height: 11px;
+  margin-top: -1px;
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+  background: linear-gradient(180deg, #EDE4D6 0%, #CFC2AE 100%);
+  box-shadow: 0 5px 14px -6px rgba(0, 0, 0, .45);
+}
+
+/* ============================================================================
+   Prompt + controls
+   ========================================================================== */
+
+.controls {
+  display: grid;
+  justify-items: center;
+  gap: .55rem;
+}
+.stage[data-scene="message"] .controls { display: none; }
+
+.mic-note {
+  font-size: .78rem;
+  color: var(--ink-soft);
+  opacity: .85;
+  margin: 0;
+  max-width: 32ch;
+  line-height: 1.45;
+}
+
+.tap-hint {
+  font-size: .84rem;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin: 0;
+}
+
+/* A live meter of blow strength — feedback that the mic really is hearing. */
+.meter {
+  width: 108px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(58, 52, 44, .14);
+  overflow: hidden;
+}
+.meter > i {
+  display: block;
+  height: 100%;
+  width: calc(var(--level, 0) * 100%);
+  background: var(--sage);
+  border-radius: 2px;
+  transition: width .08s linear;
+}
+
+/* ============================================================================
+   Message
+   ========================================================================== */
+
+.message { display: none; }
+.stage[data-scene="message"] .message { display: block; }
+
+.message .line,
+.message .signoff {
+  opacity: 0;
+  transform: translateY(9px);
+  animation: rise .9s var(--ease-paper) forwards;
+  /* Held back until the confetti burst has thinned, so the words are never
+     competing with paper for the eye. */
+  animation-delay: calc(var(--i, 0) * 620ms + 900ms);
+}
+@keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+.replay { margin-top: 1.1rem; }
+.stage:not([data-scene="message"]) .replay { display: none; }
+
+/* ============================================================================
+   Short viewports — a phone in landscape, mostly.
+   ========================================================================== */
+
+@media (max-height: 620px) {
+  .stage { --card-w: min(78vw, 360px); }
+  .candle { height: 54px; }
+  .stick { height: 34px; }
+  .wick  { bottom: 34px; }
+  .flame { bottom: 39px; }
+  .smoke { bottom: 40px; }
+  .cake-body { height: 36px; }
+  .sprig--foot { display: none; }
+}
+
+/* ============================================================================
+   Reduced motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .stage[data-scene="sealed"] .envelope { animation: none; }
+  .candle.out .smoke { animation: none; opacity: 0; }
+  .sprig path, .sprig ellipse, .sprig circle {
+    stroke-dashoffset: 0;
+    animation: none !important;
+  }
+  .message .line, .message .signoff {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}

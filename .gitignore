@@ -1,0 +1,4 @@
+# Local dev only — Puppeteer smoke tests and their screenshots.
+# The site itself has no dependencies and no build step.
+.shots/
+.smoke-test*.mjs
