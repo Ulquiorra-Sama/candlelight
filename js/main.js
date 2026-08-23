@@ -19,7 +19,6 @@ const openBtn    = $('openBtn');
 const candlesEl  = $('candles');
 const promptText = $('promptText');
 const micBtn     = $('micBtn');
-const micNote    = $('micNote');
 const meter      = $('meter');
 const tapHint    = $('tapHint');
 const skipBtn    = $('skipBtn');
@@ -296,12 +295,10 @@ function offerMic() {
   micBtn.hidden = false;
   micBtn.disabled = false;
   micBtn.textContent = 'Blow out the candles';
-  micNote.hidden = false;
-  micNote.textContent = 'Uses your microphone. Nothing is recorded.';
   tapHint.textContent = 'or tap each candle';
 
-  /* Revealing the button and its note makes the card taller, so re-measure —
-     setScene's own fitCard() ran before these existed. */
+  /* Revealing the button makes the card taller, so re-measure — setScene's own
+     fitCard() ran before it existed. */
   fitCard();
 }
 
@@ -309,7 +306,6 @@ function fallbackToTap() {
   micActive = false;
   micBtn.hidden = true;
   meter.hidden = true;
-  micNote.hidden = true;
   tapHint.textContent = 'Tap each candle to blow it out.';
   flames.setBlow(0);
   fitCard();
@@ -332,7 +328,6 @@ micBtn.addEventListener('click', async () => {
     micEverGranted = true;
     micBtn.hidden = true;
     meter.hidden = false;
-    micNote.textContent = 'Blow at your screen. Nothing is recorded.';
     tapHint.textContent = 'or tap each candle';
     say('Microphone on. Blow at the screen to put the candles out.');
   } catch (err) {
@@ -483,7 +478,6 @@ replayBtn.addEventListener('click', async () => {
       micActive = true;
       micBtn.hidden = true;
       meter.hidden = false;
-      micNote.textContent = 'Blow at your screen. Nothing is recorded.';
     } catch (err) {
       fallbackToTap();
     }

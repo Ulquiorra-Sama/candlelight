@@ -480,15 +480,6 @@
 }
 .stage[data-scene="message"] .controls { display: none; }
 
-.mic-note {
-  font-size: .78rem;
-  color: var(--ink-soft);
-  opacity: .85;
-  margin: 0;
-  max-width: 32ch;
-  line-height: 1.45;
-}
-
 .tap-hint {
   font-size: .84rem;
   color: var(--ink-soft);
