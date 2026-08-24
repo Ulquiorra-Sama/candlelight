@@ -30,15 +30,13 @@ export const CARD = {
      after the last candle goes out. Add or remove lines freely — the timing
      adjusts itself.
 
-     If you swap any of these for something specific, it will land harder.
-     "You drove four hours for a twenty-minute recital" beats anything general.
-     But these are written to stand on their own if you'd rather they did.
+     Use curly apostrophes (’) rather than straight ones ('). In a serif face
+     on paper, a straight quote reads as a typewriter mark.
      ---------------------------------------------------------------------- */
   lines: [
-    "You made a great many things look easy that I have since found out are not.",
-    "I noticed later than I should have. I’ve been noticing ever since.",
-    "Most of what I know worth knowing, I learned by watching you do it first.",
-    "So today, let someone else do the looking after.",
+    "Thank you so much for all that you have done for me.",
+    "You’ve been there for me so many times, and in so many ways.",
+    "I love you so much.",
   ],
 
   /* Signed at the bottom, in a handwritten face. */
