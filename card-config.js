@@ -27,16 +27,18 @@ export const CARD = {
 
   /* ------------------------------------------------------------------------
      The message. Each string is revealed on its own, one after another,
-     after the last candle goes out.
+     after the last candle goes out. Add or remove lines freely — the timing
+     adjusts itself.
 
-     Say something only you could say. A specific memory beats a nice
-     sentiment every time — "you drove four hours for a twenty minute recital"
-     lands harder than "you were always there for me".
+     If you swap any of these for something specific, it will land harder.
+     "You drove four hours for a twenty-minute recital" beats anything general.
+     But these are written to stand on their own if you'd rather they did.
      ---------------------------------------------------------------------- */
   lines: [
-    "REPLACE ME — a specific thing she did that you still think about",
-    "REPLACE ME — something only she says, quoted exactly",
-    "REPLACE ME — the thank-you you don't say out loud often enough",
+    "You made a great many things look easy that I have since found out are not.",
+    "I noticed later than I should have. I’ve been noticing ever since.",
+    "Most of what I know worth knowing, I learned by watching you do it first.",
+    "So today, let someone else do the looking after.",
   ],
 
   /* Signed at the bottom, in a handwritten face. */
