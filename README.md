@@ -2,7 +2,7 @@
 
 An interactive birthday card.
 
-**→ https://0x000null.github.io/candlelight/**
+**→ https://ulquiorra-sama.github.io/candlelight/**
 
 An envelope you open, a cake that rises out of it, and candles you blow out —
 really blow out. The page listens through the device microphone, the flames
