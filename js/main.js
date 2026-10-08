@@ -63,7 +63,7 @@ function resolveCandleCount(cfg) {
 }
 
 function resolveGreeting(cfg) {
-  const base = cfg.greeting || 'Happy Birthday';
+  const base = cfg.greeting || 'تولدت مبارک';
   if (!Number.isFinite(cfg.age) || cfg.age <= 0) return base;
   /* Slot the age into whatever greeting they wrote, rather than overwriting
      it: "Happy Birthday" → "Happy 60th Birthday". */
@@ -80,7 +80,6 @@ const PER_CANDLE = TOTAL_CHARGE / CANDLE_COUNT;
    ========================================================================== */
 
 $('greetingText').textContent = resolveGreeting(CARD);
-$('cardName').textContent = CARD.name || 'Mom';
 
 /* Candle wax colours, cycled so neighbours never match. */
 const WAX = [
@@ -100,7 +99,7 @@ function buildCandles() {
     b.className = 'candle';
     b.type = 'button';
     b.dataset.i = String(i);
-    b.setAttribute('aria-label', `Blow out candle ${i + 1} of ${CANDLE_COUNT}`);
+    b.setAttribute('aria-label', `خاموش‌کردن شمع ${i + 1} از ${CANDLE_COUNT}`);
     const [c1, c2] = WAX[i % WAX.length];
     b.style.setProperty('--c1', c1);
     b.style.setProperty('--c2', c2);
@@ -258,7 +257,7 @@ function updateLit() {
 openBtn.addEventListener('click', () => {
   if (scene !== 'sealed') return;
   setScene('opening');
-  say('The card is opening.');
+  say('کارت دارد باز می‌شود.');
 
   /* Drop the envelope-shaped clip exactly as the card begins to slide. Until
      now it has guaranteed nothing pokes out past the envelope; from here the
@@ -272,7 +271,7 @@ openBtn.addEventListener('click', () => {
     /* Move focus to the thing she should do next, now that it exists. */
     const target = micBtn.hidden ? candles[0] : micBtn;
     if (target) target.focus({ preventScroll: true });
-    say(`${CANDLE_COUNT} candles are lit. ${CARD.wishPrompt || 'Make a wish'}.`);
+    say(`شمع‌ها روشن‌اند. ${CARD.wishPrompt || 'یه آرزو کن'}.`);
   }, wait);
 });
 
@@ -281,21 +280,21 @@ openBtn.addEventListener('click', () => {
    ========================================================================== */
 
 function offerMic() {
-  promptText.textContent = CARD.wishPrompt || 'Make a wish';
+  promptText.textContent = CARD.wishPrompt || 'یه آرزو کن';
 
   if (!CARD.enableMic || !micSupported()) {
     /* No offer, no prompt, no explanation needed — tapping is presented as
        the way it works rather than as a downgrade. */
     micBtn.hidden = true;
-    tapHint.textContent = 'Tap each candle to blow it out.';
+    tapHint.textContent = 'برای خاموش‌کردن، روی هر شمع بزن.';
     fitCard();
     return;
   }
 
   micBtn.hidden = false;
   micBtn.disabled = false;
-  micBtn.textContent = 'Blow out the candles';
-  tapHint.textContent = 'or tap each candle';
+  micBtn.textContent = 'شمع‌ها رو فوت کن';
+  tapHint.textContent = 'یا روی هر شمع بزن';
 
   /* Revealing the button makes the card taller, so re-measure — setScene's own
      fitCard() ran before it existed. */
@@ -306,14 +305,14 @@ function fallbackToTap() {
   micActive = false;
   micBtn.hidden = true;
   meter.hidden = true;
-  tapHint.textContent = 'Tap each candle to blow it out.';
+  tapHint.textContent = 'برای خاموش‌کردن، روی هر شمع بزن.';
   flames.setBlow(0);
   fitCard();
 }
 
 micBtn.addEventListener('click', async () => {
   micBtn.disabled = true;
-  micBtn.textContent = 'One moment…';
+  micBtn.textContent = 'یک لحظه…';
 
   detector = detector || createBlowDetector({
     onLevel: handleLevel,
@@ -328,13 +327,13 @@ micBtn.addEventListener('click', async () => {
     micEverGranted = true;
     micBtn.hidden = true;
     meter.hidden = false;
-    tapHint.textContent = 'or tap each candle';
-    say('Microphone on. Blow at the screen to put the candles out.');
+    tapHint.textContent = 'یا روی هر شمع بزن';
+    say('میکروفون فعاله؛ برای خاموش‌کردن شمع‌ها فوت کن.');
   } catch (err) {
     /* Every failure path lands here and looks identical to her: the card
        simply becomes a tap-the-candles card. No error, no apology. */
     fallbackToTap();
-    say('Tap each candle to blow it out.');
+    say('برای خاموش‌کردن، روی هر شمع بزن.');
   }
 });
 
@@ -379,13 +378,13 @@ function snuff(el, now) {
   if (el.classList.contains('out')) return;
   el.classList.add('out');
   el.disabled = true;
-  el.setAttribute('aria-label', 'Candle is out');
+  el.setAttribute('aria-label', 'این شمع خاموش شده است');
   litCount--;
   lastOutAt = now || performance.now();
   updateLit();
 
   if (litCount > 0) {
-    say(`${litCount} candle${litCount === 1 ? '' : 's'} left.`);
+    say(`${litCount} شمع روشن مانده است.`);
   } else {
     allOut();
   }
@@ -405,7 +404,7 @@ candlesEl.addEventListener('click', (e) => {
 
 function allOut() {
   setScene('wish');
-  say('All the candles are out.');
+  say('همه‌ی شمع‌ها خاموش شدند.');
 
   /* Release the microphone the moment it stops being useful — no reason to
      hold it open while she reads. */
@@ -442,7 +441,7 @@ skipBtn.addEventListener('click', () => {
   stopMic();
   setScene('message');
   messageEl.focus({ preventScroll: true });
-  say('Showing the message.');
+  say('پیام نمایش داده می‌شود.');
 });
 
 /* ==========================================================================
@@ -455,7 +454,7 @@ replayBtn.addEventListener('click', async () => {
   candles.forEach((el, i) => {
     el.classList.remove('out');
     el.disabled = false;
-    el.setAttribute('aria-label', `Blow out candle ${i + 1} of ${CANDLE_COUNT}`);
+    el.setAttribute('aria-label', `خاموش‌کردن شمع ${i + 1} از ${CANDLE_COUNT}`);
   });
 
   litCount = CANDLE_COUNT;
@@ -485,7 +484,7 @@ replayBtn.addEventListener('click', async () => {
 
   const target = micBtn.hidden ? candles[0] : micBtn;
   if (target) target.focus({ preventScroll: true });
-  say('The candles are lit again.');
+  say('شمع‌ها دوباره روشن شدند.');
 });
 
 /* ==========================================================================

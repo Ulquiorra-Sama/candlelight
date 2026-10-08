@@ -13,17 +13,17 @@
 export const CARD = {
 
   /* Who it's for. A first name, or "Mom", or a nickname she'd recognize. */
-  name: "Mom",
+   name: "آنیسا",
 
   /* Which birthday. Set a number like 60 to print it, or leave null to
      show no number at all. This also decides how many candles appear. */
-  age: 52,
+  age: 14,
 
   /* The big line on the front of the card. */
-  greeting: "Happy Birthday",
+   greeting: "تولدت مبارک دیوونه 😂🎂",
 
   /* Shown above the cake, before she blows the candles out. */
-  wishPrompt: "Make a wish",
+   wishPrompt: "یه آرزو کن",
 
   /* ------------------------------------------------------------------------
      The message. Each string is revealed on its own, one after another,
@@ -34,13 +34,12 @@ export const CARD = {
      on paper, a straight quote reads as a typewriter mark.
      ---------------------------------------------------------------------- */
   lines: [
-    "Thank you so much for all that you have done for me.",
-    "You’ve been there for me so many times, and in so many ways.",
-    "I love you so much.",
+   "امیدوارم امسال هرچی می‌خوای بهش برسی، جز چیزایی که من تأیید نمی‌کنم 👍😂",
+   "خوش بگذره، زیادم بزرگ نشو که همین‌جوری قابل تحمل‌تری 😂",
   ],
 
   /* Signed at the bottom, in a handwritten face. */
-  signoff: "Love, Ethan",
+   signoff: "",
 
 
   /* ==========================================================================
